@@ -1,0 +1,20 @@
+{
+  "name": "nodejs_global_mentoring",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "task1": "node .\\HW1\\task1.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.epam.com:peter_toth9/nodejs_global_mentoring.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
