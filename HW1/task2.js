@@ -6,14 +6,16 @@ const fs = require('fs')
 const path = require('path')
 
 const csvFilePath = path.join(__dirname, './csv/nodejs-hw1-ex1.csv')
-
+const fileStream = fs.createWriteStream('./HW1/csv/output.txt')
+fileStream.on('error', (err) => {
+    console.log('Writing error');
+})
 
 csvtojsonV2()
     .fromFile(csvFilePath)
     .subscribe( json => {
         const data = JSON.stringify(json) + '\n'
         // console.log(data);
-        const fileStream = fs.createWriteStream('./HW1/csv/output.txt', {flags: 'a'})
         fileStream.write(data)
     }, (err) => {
         console.log(err);

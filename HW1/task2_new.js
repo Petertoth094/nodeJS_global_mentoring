@@ -4,13 +4,16 @@ import fs from 'fs'
 import path from 'path'
 
 const csvFilePath = path.resolve(__dirname, '..', 'HW1', 'csv', 'nodejs-hw1-ex1.csv')
+const fileStream = fs.createWriteStream('./HW1/csv/output2.txt')
+fileStream.on('error', (err) => {
+    console.log('Writing error');
+})
 
 csvtojsonV2()
     .fromFile(csvFilePath)
     .subscribe( json => {
         const data = JSON.stringify(json) + '\n'
         // console.log(data);
-        const fileStream = fs.createWriteStream('./HW1/csv/output2.txt', {flags: 'a'})
         fileStream.write(data)
     }, (err) => {
         console.log(err);
