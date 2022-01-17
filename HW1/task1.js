@@ -14,10 +14,9 @@ const r1 = readline.createInterface({
 
 r1.on('line', function(line){
     console.log(line.split('').reverse().join('') + '\n');
-
 })
 
 
 // process.stdin.on('data', data => {
-//     console.log(`${data.toString().split('').reverse().join('') + '\n'}`);
-//   });
+//     console.log(`${data.reverse().toString()}`);
+// });

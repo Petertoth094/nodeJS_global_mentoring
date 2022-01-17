@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "task1": "nodemon .\\HW1\\task1.js"
+    "task1": "nodemon .\\HW1\\task1.js",
+    "task2": "nodemon .\\HW1\\task2.js",
+    "task1_3": "babel .\\HW1\\task1_new.js -d dist && nodemon dist/task1_new.js",
+    "task2_3": "babel .\\HW1\\task2_new.js -d dist && nodemon dist/task2_new.js"
   },
   "repository": {
     "type": "git",
@@ -15,6 +18,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.16.8",
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.16.8",
     "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "csvtojson": "^2.0.10"
   }
 }
