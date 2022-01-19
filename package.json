@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "task1": "nodemon .\\HW1\\task1.js",
-    "task2": "nodemon .\\HW1\\task2.js",
-    "task1_3": "babel .\\HW1\\task1_new.js -d dist && nodemon dist/task1_new.js",
-    "task2_3": "babel .\\HW1\\task2_new.js -d dist && nodemon dist/task2_new.js"
+    "task1": "nodemon ./HW1/task1.js",
+    "task2": "nodemon ./HW1/task2.js",
+    "task1_3": "nodemon --exec ./node_modules/.bin/babel-node ./HW1/task1_3.js",
+    "task2_3": "nodemon --exec ./node_modules/.bin/babel-node ./HW1/task2_3.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@babel/cli": "^7.16.8",
     "@babel/core": "^7.16.7",
+    "@babel/node": "^7.16.8",
     "@babel/preset-env": "^7.16.8",
     "nodemon": "^2.0.15"
   },

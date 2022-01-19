@@ -3,8 +3,9 @@ import csvtojsonV2 from 'csvtojson/v2'
 import fs from 'fs'
 import path from 'path'
 
-const csvFilePath = path.resolve(__dirname, '..', 'HW1', 'csv', 'nodejs-hw1-ex1.csv')
-const fileStream = fs.createWriteStream('./HW1/csv/output2.txt')
+const csvFilePath = path.join(__dirname, './csv/nodejs-hw1-ex1.csv')
+const fileStream = fs.createWriteStream('./HW1/output/output2.txt')
+
 fileStream.on('error', (err) => {
     console.log('Writing error');
 })
@@ -21,7 +22,7 @@ csvtojsonV2()
 
 
 // const readStream = fs.createReadStream(csvFilePath)
-// const writeStream =fs.createWriteStream('./HW1/csv/output2.txt', {flags: 'a'})
+// const writeStream =fs.createWriteStream('./HW1/output/output2.txt', {flags: 'a'})
 
 // readStream
 //     .on('error', () => {
