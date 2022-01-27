@@ -14,7 +14,6 @@
 //     console.log(line.split('').reverse().join('') + '\n');
 // })
 
-
-process.stdin.on('data', data => {
-    console.log(`${data.reverse().toString()}`);
+process.stdin.on('data', (data) => {
+  console.log(`${data.reverse().toString()}`);
 });
