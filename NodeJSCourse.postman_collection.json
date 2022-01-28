@@ -32,7 +32,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"login\": \"lajoskaka\",\r\n    \"password\": \"asdQWE123\",\r\n    \"age\": 30\r\n}",
+					"raw": "{\r\n    \"login\": \"karol\",\r\n    \"password\": \"asdQWE123\",\r\n    \"age\": 20\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -60,7 +60,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/user/qAhmT4cbATFTIAzfGsrBt",
+					"raw": "http://localhost:3000/api/user/_s9VFB7VDVGptdCZ5RYNs",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -69,7 +69,7 @@
 					"path": [
 						"api",
 						"user",
-						"qAhmT4cbATFTIAzfGsrBt"
+						"_s9VFB7VDVGptdCZ5RYNs"
 					],
 					"query": [
 						{
@@ -161,39 +161,6 @@
 						"api",
 						"user",
 						"qAhmT4cbATFTIAzfGsrBt"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GetSuggestedUser2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/api/users/suggested2/?limit=4",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"api",
-						"users",
-						"suggested2",
-						""
-					],
-					"query": [
-						{
-							"key": "loginSubStr",
-							"value": "ag",
-							"disabled": true
-						},
-						{
-							"key": "limit",
-							"value": "4"
-						}
 					]
 				}
 			},
