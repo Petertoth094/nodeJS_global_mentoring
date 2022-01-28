@@ -1,23 +1,17 @@
 import { nanoid } from 'nanoid';
-import lodash from 'lodash';
 
-import User from '../model/user.model';
+import User, { UserView } from '../model/user.model';
 import { CreateUserInput, UpdateUserInput } from '../schema/user.schema';
-import {
-  getUsersFromFile,
-  writeUsersToFile
-} from '../utils/usersFileOperatons';
+
+import usersJSON from '../utils/users';
+
+let users: User[] = JSON.parse(JSON.stringify(usersJSON));
 
 export async function createUser(input: CreateUserInput['body']) {
   try {
-    // const filePath = path.join(__dirname, "..", "utils", "users.json");
-    // const data = await fs.readFile(filePath, "utf-8");
-    // const users: User[] = await JSON.parse(data);
-    const users: User[] = await getUsersFromFile();
-
     const foundUser = users.find((user) => user.login === input.login);
 
-    if (foundUser) return null;
+    if (foundUser) return undefined;
 
     const newUser: User = {
       id: nanoid(),
@@ -28,10 +22,7 @@ export async function createUser(input: CreateUserInput['body']) {
     };
     users.push(newUser);
 
-    // await fs.writeFile(filePath, JSON.stringify(users))
-    await writeUsersToFile(users);
-
-    return lodash.omit(newUser, ['password']);
+    return newUser;
   } catch (error: any) {
     console.log('CreateUser error', error);
   }
@@ -39,59 +30,23 @@ export async function createUser(input: CreateUserInput['body']) {
 
 export async function getUsers() {
   try {
-    const users: User[] = await getUsersFromFile();
+    return users.map((user: UserView) => {
+      delete user?.password;
 
-    return users.map((user) => lodash.omit(user, ['password']));
+      return user;
+    });
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function getUserById(query: string) {
+export async function getUserById(paramID: string) {
   try {
-    const users: User[] = await getUsersFromFile();
-
-    // eslint-disable-next-line no-shadow
-    const user = users.find((user) => user.id === query);
-    if (!user) {
-      return null;
+    const foundUser = users.find((user) => user.id === paramID);
+    if (!foundUser) {
+      return undefined;
     }
-    return lodash.omit(user, ['password']);
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function updateUser(
-  query: string,
-  update: Partial<UpdateUserInput['body']>
-) {
-  try {
-    const users: User[] = await getUsersFromFile();
-
-    const foundUser = users.find((user) => user.id === query);
-
-    if (foundUser) {
-      const updatedUsers = users.map((user) => {
-        if (user.id === query) {
-          return {
-            ...user,
-            ...update
-          };
-        }
-        return user;
-      });
-      await writeUsersToFile(updatedUsers);
-      return lodash.omit(
-        {
-          ...foundUser,
-          ...update
-        },
-        ['password']
-      );
-    }
-
-    return null;
+    return foundUser;
   } catch (error) {
     console.log(error);
   }
@@ -99,8 +54,6 @@ export async function updateUser(
 
 export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
   try {
-    const users: User[] = await getUsersFromFile();
-
     const suggestedUsers = users
       .filter((user) => user.login.includes(loginSubstring))
       .sort((a, b) => {
@@ -117,9 +70,45 @@ export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
       .slice(0, limit);
 
     if (suggestedUsers.length === 0) {
-      return null;
+      return undefined;
     }
-    return suggestedUsers.map((user) => lodash.omit(user, ['password']));
+    return suggestedUsers.map((user: UserView) => {
+      delete user?.password;
+      return user;
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateUser(
+  queryID: string,
+  update: Partial<UpdateUserInput['body']>
+) {
+  try {
+    const foundUser: UserView | undefined = users.find(
+      (user) => user.id === queryID
+    );
+
+    if (foundUser) {
+      users = users.map((user) => {
+        if (user.id === queryID) {
+          return {
+            ...user,
+            ...update
+          };
+        }
+        return user;
+      });
+
+      const updatedUser = { ...foundUser, ...update };
+
+      delete updatedUser.password;
+
+      return updatedUser;
+    }
+
+    return undefined;
   } catch (error) {
     console.log(error);
   }
@@ -127,12 +116,12 @@ export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
 
 export async function removeUser(query: string) {
   try {
-    const users: User[] = await getUsersFromFile();
-
-    const foundUser = users.find((user) => user.id === query);
+    const foundUser: UserView | undefined = users.find(
+      (user) => user.id === query
+    );
 
     if (foundUser) {
-      const updatedUsers = users.map((user) => {
+      users = users.map((user) => {
         if (user.id === query) {
           return {
             ...user,
@@ -141,14 +130,12 @@ export async function removeUser(query: string) {
         }
         return user;
       });
-      await writeUsersToFile(updatedUsers);
-      return lodash.omit(
-        {
-          ...foundUser,
-          isDeleted: true
-        },
-        ['password']
-      );
+
+      const removedUser = { ...foundUser, isDeleted: true };
+
+      delete removedUser.password;
+
+      return removedUser;
     }
 
     return null;

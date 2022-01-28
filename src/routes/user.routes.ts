@@ -1,13 +1,14 @@
 import express from 'express';
+
 import {
   createUserHandler,
   getAutoSuggestUsersHandler,
   getUserByIdHandler,
   getUsersHandler,
   removeUserHandler,
-  updateUserHandler,
-  getAutoSuggestUsersHandler2
+  updateUserHandler
 } from '../controller/user.controller';
+
 import validateResource from '../middleware/validateResource';
 import {
   createUserSchema,
@@ -34,8 +35,7 @@ router.put(
   updateUserHandler
 );
 
-router.get('/api/users/suggested', getAutoSuggestUsersHandler);
-router.get('/api/users/suggested2/', getAutoSuggestUsersHandler2);
+router.get('/api/users/:loginSubStr/:limit', getAutoSuggestUsersHandler);
 
 router.delete(
   '/api/user/:id',

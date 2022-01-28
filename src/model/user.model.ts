@@ -1,3 +1,5 @@
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 export default interface User {
   id: string;
   login: string;
@@ -6,3 +8,5 @@ export default interface User {
   isDeleted: boolean;
   // eslint-disable-next-line semi
 }
+
+export type UserView = Optional<User, 'password'>;

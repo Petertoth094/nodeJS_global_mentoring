@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * https://epam.sharepoint.com/sites/EPAMNode.jsGlobalMentoringProgram/Shared%20Documents/General/Homework/Module%201/Homework%201.pdf
  */
@@ -9,7 +10,7 @@ const csvFilePath = path.join(__dirname, './csv/nodejs-hw1-ex1.csv');
 const fileStream = fs.createWriteStream('./HW1/output/output1.txt');
 
 fileStream.on('error', (err) => {
-  console.log('Writing error');
+  console.log('Writing error:', err);
 });
 
 csvtojsonV2()

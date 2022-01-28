@@ -27,14 +27,6 @@ const paramsID = {
   })
 };
 
-// const paramsLogin = {
-//   params: object({
-//     login: string({
-//       required_error: 'userLogin is required!'
-//     })
-//   })
-// };
-
 export const createUserSchema = object({
   ...payload
 });
