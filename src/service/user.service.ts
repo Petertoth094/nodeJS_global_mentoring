@@ -7,11 +7,17 @@ import usersJSON from '../utils/users';
 
 let users: User[] = JSON.parse(JSON.stringify(usersJSON));
 
-export async function createUser(input: CreateUserInput['body']) {
+export async function createUser(
+  input: CreateUserInput['body']
+): Promise<User | undefined> {
   try {
-    const foundUser = users.find((user) => user.login === input.login);
+    const foundUser: User | undefined = users.find(
+      (user) => user.login === input.login
+    );
 
-    if (foundUser) return undefined;
+    if (foundUser) {
+      return undefined;
+    }
 
     const newUser: User = {
       id: nanoid(),
@@ -28,7 +34,7 @@ export async function createUser(input: CreateUserInput['body']) {
   }
 }
 
-export async function getUsers() {
+export async function getUsers(): Promise<UserView[] | undefined> {
   try {
     return users.map((user: UserView) => {
       delete user?.password;
@@ -40,21 +46,30 @@ export async function getUsers() {
   }
 }
 
-export async function getUserById(paramID: string) {
+export async function getUserById(
+  paramID: string
+): Promise<UserView | undefined> {
   try {
-    const foundUser = users.find((user) => user.id === paramID);
+    const foundUser: UserView | undefined = users.find(
+      (user) => user.id === paramID
+    );
     if (!foundUser) {
       return undefined;
     }
+    delete foundUser.password;
+
     return foundUser;
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
+export async function getAutoSuggestUsers(
+  loginSubstring = '',
+  limit = 3
+): Promise<UserView[] | undefined> {
   try {
-    const suggestedUsers = users
+    const suggestedUsers: User[] = users
       .filter((user) => user.login.includes(loginSubstring))
       .sort((a, b) => {
         const nameA = a.login.toLocaleUpperCase();
@@ -83,8 +98,8 @@ export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
 
 export async function updateUser(
   queryID: string,
-  update: Partial<UpdateUserInput['body']>
-) {
+  update: UpdateUserInput['body']
+): Promise<UserView | undefined> {
   try {
     const foundUser: UserView | undefined = users.find(
       (user) => user.id === queryID
@@ -101,7 +116,7 @@ export async function updateUser(
         return user;
       });
 
-      const updatedUser = { ...foundUser, ...update };
+      const updatedUser: UserView = { ...foundUser, ...update };
 
       delete updatedUser.password;
 
@@ -114,7 +129,7 @@ export async function updateUser(
   }
 }
 
-export async function removeUser(query: string) {
+export async function removeUser(query: string): Promise<UserView | undefined> {
   try {
     const foundUser: UserView | undefined = users.find(
       (user) => user.id === query
@@ -131,14 +146,14 @@ export async function removeUser(query: string) {
         return user;
       });
 
-      const removedUser = { ...foundUser, isDeleted: true };
+      const removedUser: UserView = { ...foundUser, isDeleted: true };
 
       delete removedUser.password;
 
       return removedUser;
     }
 
-    return null;
+    return undefined;
   } catch (error) {
     console.log(error);
   }

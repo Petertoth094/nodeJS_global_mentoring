@@ -40,7 +40,7 @@ export async function createUserHandler(
 
 export async function getUsersHandler(req: Request, res: Response) {
   try {
-    const users = await getUsers();
+    const users: UserView[] | undefined = await getUsers();
     if (!users) {
       return res.status(404).send('Database is empty');
     }
@@ -56,14 +56,13 @@ export async function getUserByIdHandler(
   res: Response
 ) {
   try {
-    const userID = req.params.id;
+    const userID: string = req.params.id;
 
     const user: UserView | undefined = await getUserById(userID);
 
     if (!user) {
       return res.status(400).send(`No user found with id:${userID}`);
     }
-    delete user.password;
 
     return res.status(200).send(user);
   } catch (error) {
@@ -76,7 +75,10 @@ export async function getAutoSuggestUsersHandler(req: Request, res: Response) {
   try {
     const { loginSubStr, limit } = req.params;
 
-    const users = await getAutoSuggestUsers(loginSubStr, parseInt(limit, 10));
+    const users: UserView[] | undefined = await getAutoSuggestUsers(
+      loginSubStr,
+      parseInt(limit, 10)
+    );
 
     if (!users) {
       return res.status(404).send('Wrong login param or no users found');
@@ -94,10 +96,13 @@ export async function updateUserHandler(
   res: Response
 ) {
   try {
-    const userID = req.params.id;
-    const updateParams = req.body;
+    const userID: string = req.params.id;
+    const updateParams: UpdateUserInput['body'] = req.body;
 
-    const updatedUser = await updateUser(userID, updateParams);
+    const updatedUser: UserView | undefined = await updateUser(
+      userID,
+      updateParams
+    );
 
     if (!updatedUser) {
       return res.status(400).send('Wrong login param');
@@ -115,8 +120,8 @@ export async function removeUserHandler(
   res: Response
 ) {
   try {
-    const userID = req.params.id;
-    const removedUser = await removeUser(userID);
+    const userID: string = req.params.id;
+    const removedUser: UserView | undefined = await removeUser(userID);
 
     if (!removedUser) {
       return res.status(404).send('Wrong login param or no users found');
