@@ -11,8 +11,11 @@ const validateResource =
         params: req.params
       });
       return next();
-    } catch (error: any) {
-      return res.status(400).send(error.errors);
+    } catch (err: any) {
+      return res.status(400).json({
+        successful: false,
+        error: err.flatten()
+      });
     }
   };
 

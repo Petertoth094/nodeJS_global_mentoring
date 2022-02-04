@@ -7,6 +7,7 @@ import {
 } from '../schema/user.schema';
 import {
   createUser,
+  deleteUser,
   getAutoSuggestUsers,
   getUserById,
   getUsers,
@@ -15,7 +16,7 @@ import {
 } from '../service/user.service';
 import logger from '../utils/logger';
 
-import { UserView } from '../model/user.model';
+import { UserModel } from '../model/user.model';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput['body']>,
@@ -24,30 +25,40 @@ export async function createUserHandler(
   try {
     const body = req.body;
 
-    const user: UserView | undefined = await createUser(body);
-    if (!user) {
-      return res.status(409).send('User already exists');
-    }
+    const createdUser: UserModel = await createUser(body);
 
-    delete user.password;
-
-    return res.status(201).send(user);
-  } catch (e: any) {
-    logger.error(e);
-    return res.status(400).send('createUserHandler error');
+    return res.status(200).json({
+      successful: true,
+      result: {
+        createdUser
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      // error: 'User params wrong or user already exists!'
+      error: err?.message
+    });
   }
 }
 
 export async function getUsersHandler(req: Request, res: Response) {
   try {
-    const users: UserView[] | undefined = await getUsers();
-    if (!users) {
-      return res.status(404).send('Database is empty');
-    }
-    return res.status(200).send(users);
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).send('getUsersHandler error');
+    const users: UserModel[] = await getUsers();
+
+    return res.status(200).json({
+      successful: true,
+      result: {
+        users
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
   }
 }
 
@@ -58,16 +69,26 @@ export async function getUserByIdHandler(
   try {
     const userID: string = req.params.id;
 
-    const user: UserView | undefined = await getUserById(userID);
-
-    if (!user) {
-      return res.status(400).send(`No user found with id:${userID}`);
+    const foundUser: UserModel | null = await getUserById(userID);
+    if (!foundUser) {
+      return res.status(400).json({
+        successful: false,
+        error: `No user found with id: ${userID}`
+      });
     }
 
-    return res.status(200).send(user);
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).send('getUserByIdHandler error');
+    return res.status(200).json({
+      successful: true,
+      result: {
+        foundUser
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
   }
 }
 
@@ -75,43 +96,62 @@ export async function getAutoSuggestUsersHandler(req: Request, res: Response) {
   try {
     const { loginSubStr, limit } = req.params;
 
-    const users: UserView[] | undefined = await getAutoSuggestUsers(
+    const users: UserModel[] = await getAutoSuggestUsers(
       loginSubStr,
       parseInt(limit, 10)
     );
 
-    if (!users) {
-      return res.status(404).send('Wrong login param or no users found');
-    }
-
-    return res.status(200).send(users);
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).send('getAutoSuggestUsersHandler error');
+    return res.status(200).json({
+      successful: true,
+      result: {
+        users
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
   }
 }
 
 export async function updateUserHandler(
-  req: Request<UpdateUserInput['params'], {}, UpdateUserInput['body']>,
+  req: Request<
+    GetUserByIdInput['params'],
+    {},
+    Partial<UpdateUserInput['body']>
+  >,
   res: Response
 ) {
   try {
     const userID: string = req.params.id;
-    const updateParams: UpdateUserInput['body'] = req.body;
+    const updateParams = req.body;
 
-    const updatedUser: UserView | undefined = await updateUser(
+    const updatedUser: UserModel | null | undefined = await updateUser(
       userID,
       updateParams
     );
 
     if (!updatedUser) {
-      return res.status(400).send('Wrong login param');
+      return res.status(400).json({
+        successful: false,
+        error: `No user found with id: ${userID}`
+      });
     }
 
-    return res.status(200).send(updatedUser);
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).send('updateUserHandler error');
+    return res.status(200).json({
+      successful: true,
+      result: {
+        updatedUser
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
   }
 }
 
@@ -121,15 +161,52 @@ export async function removeUserHandler(
 ) {
   try {
     const userID: string = req.params.id;
-    const removedUser: UserView | undefined = await removeUser(userID);
+    const removedUser: UserModel | null | undefined = await removeUser(userID);
 
     if (!removedUser) {
-      return res.status(404).send('Wrong login param or no users found');
+      return res.status(400).json({
+        successful: false,
+        error: `No user found with id: ${userID}`
+      });
     }
 
-    return res.status(200).send(removedUser);
-  } catch (error) {
-    logger.error(error);
-    return res.status(400).send('removeUserHandler error');
+    return res.status(200).json({
+      successful: true,
+      result: {
+        removedUser
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
+  }
+}
+
+export async function deleteUserHandler(
+  req: Request<DeleteUserInput['params']>,
+  res: Response
+) {
+  try {
+    const userID: string = req.params.id;
+
+    const success: boolean = await deleteUser(userID);
+
+    if (!success) {
+      return res.status(400).json({
+        successful: false,
+        error: `No user found with id: ${userID}`
+      });
+    }
+
+    return res.status(200).send('User deleted');
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(400).json({
+      successful: false,
+      error: err?.message
+    });
   }
 }

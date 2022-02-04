@@ -4,7 +4,9 @@ const payload = {
   body: object({
     login: string({
       required_error: 'Login is required'
-    }),
+    })
+      .min(3, 'Login min 3 char length')
+      .max(15, 'Login max 15 char length'),
     password: string({
       required_error: 'Password is required'
     }).regex(
@@ -31,11 +33,6 @@ export const createUserSchema = object({
   ...payload
 });
 
-export const updateUserSchema = object({
-  ...payload,
-  ...paramsID
-});
-
 export const getUserByIdSchema = object({
   ...paramsID
 });
@@ -43,6 +40,8 @@ export const getUserByIdSchema = object({
 export const deleteUserSchema = object({
   ...paramsID
 });
+
+export const updateUserSchema = createUserSchema.deepPartial();
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>;
 export type UpdateUserInput = TypeOf<typeof updateUserSchema>;
