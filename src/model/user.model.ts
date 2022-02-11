@@ -33,6 +33,7 @@ const sequelize = new Sequelize({
 
 class UserModel
   extends Model<User, CreateUserModel>
+  // eslint-disable-next-line prettier/prettier
   implements CreateUserModel {
   declare id: string;
   declare login: string;
