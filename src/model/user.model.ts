@@ -1,5 +1,4 @@
 import { DataTypes, HasManyAddAssociationsMixin, Model } from 'sequelize';
-import { CreateUserInput } from '../schema/user.schema';
 import { GroupModel } from './group.model';
 
 import { sequelize } from '../data-access/dbConnect';
