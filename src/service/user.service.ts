@@ -1,145 +1,132 @@
-import { nanoid } from 'nanoid';
+import { Op } from 'sequelize';
 
-import User, { UserView } from '../model/user.model';
+import { UserModel } from '../model/user.model';
 import { CreateUserInput, UpdateUserInput } from '../schema/user.schema';
 
-import usersJSON from '../utils/users';
-
-let users: User[] = JSON.parse(JSON.stringify(usersJSON));
-
-export async function createUser(input: CreateUserInput['body']) {
+export async function createUser(
+  input: CreateUserInput['body']
+): Promise<UserModel> {
   try {
-    const foundUser = users.find((user) => user.login === input.login);
-
-    if (foundUser) return undefined;
-
-    const newUser: User = {
-      id: nanoid(),
-      login: input.login,
-      password: input.password,
-      age: input.age,
-      isDeleted: false
-    };
-    users.push(newUser);
+    const newUser: UserModel = await UserModel.create(input);
 
     return newUser;
   } catch (error: any) {
-    console.log('CreateUser error', error);
+    throw new Error(error);
   }
 }
 
-export async function getUsers() {
+export async function getUsers(): Promise<UserModel[]> {
   try {
-    return users.map((user: UserView) => {
-      delete user?.password;
+    const dbUsers: UserModel[] = await UserModel.findAll();
 
-      return user;
+    return dbUsers;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
+
+export async function getUserById(paramID: string): Promise<UserModel | null> {
+  try {
+    const foundUser: UserModel | null = await UserModel.findOne({
+      where: {
+        id: paramID
+      }
     });
-  } catch (error) {
-    console.log(error);
-  }
-}
 
-export async function getUserById(paramID: string) {
-  try {
-    const foundUser = users.find((user) => user.id === paramID);
-    if (!foundUser) {
-      return undefined;
-    }
     return foundUser;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
 
-export async function getAutoSuggestUsers(loginSubstring = '', limit = 3) {
+export async function getAutoSuggestUsers(
+  loginSubstring: string,
+  limitParam: number
+): Promise<UserModel[]> {
   try {
-    const suggestedUsers = users
-      .filter((user) => user.login.includes(loginSubstring))
-      .sort((a, b) => {
-        const nameA = a.login.toLocaleUpperCase();
-        const nameB = b.login.toLocaleUpperCase();
-        if (nameA < nameB) {
-          return -1;
+    const suggestedUsers: UserModel[] = await UserModel.findAll({
+      limit: limitParam,
+      order: [['login', 'ASC']],
+      where: {
+        login: {
+          [Op.or]: {
+            [Op.startsWith]: loginSubstring,
+            [Op.endsWith]: loginSubstring,
+            [Op.iLike]: `%${loginSubstring}%`
+          }
         }
-        if (nameA > nameB) {
-          return 1;
-        }
-        return 0;
-      })
-      .slice(0, limit);
-
-    if (suggestedUsers.length === 0) {
-      return undefined;
-    }
-    return suggestedUsers.map((user: UserView) => {
-      delete user?.password;
-      return user;
+      }
     });
-  } catch (error) {
-    console.log(error);
+
+    return suggestedUsers;
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
 
 export async function updateUser(
   queryID: string,
-  update: Partial<UpdateUserInput['body']>
-) {
+  update: UpdateUserInput['body']
+): Promise<UserModel | null | undefined> {
   try {
-    const foundUser: UserView | undefined = users.find(
-      (user) => user.id === queryID
-    );
-
-    if (foundUser) {
-      users = users.map((user) => {
-        if (user.id === queryID) {
-          return {
-            ...user,
-            ...update
-          };
+    const [foundCounter] = await UserModel.update(
+      { ...update },
+      {
+        where: {
+          id: queryID
         }
-        return user;
+      }
+    );
+    if (foundCounter > 0) {
+      const returnUser = await UserModel.findOne({
+        where: {
+          id: queryID
+        }
       });
-
-      const updatedUser = { ...foundUser, ...update };
-
-      delete updatedUser.password;
-
-      return updatedUser;
+      return returnUser;
     }
-
     return undefined;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
 
-export async function removeUser(query: string) {
+export async function removeUser(
+  queryID: string
+): Promise<UserModel | null | undefined> {
   try {
-    const foundUser: UserView | undefined = users.find(
-      (user) => user.id === query
-    );
-
-    if (foundUser) {
-      users = users.map((user) => {
-        if (user.id === query) {
-          return {
-            ...user,
-            isDeleted: true
-          };
+    const [foundCounter] = await UserModel.update(
+      { isDeleted: true },
+      {
+        where: {
+          id: queryID
         }
-        return user;
+      }
+    );
+    if (foundCounter > 0) {
+      const removedUser = await UserModel.findOne({
+        where: {
+          id: queryID
+        }
       });
-
-      const removedUser = { ...foundUser, isDeleted: true };
-
-      delete removedUser.password;
-
       return removedUser;
     }
+    return undefined;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+}
 
-    return null;
-  } catch (error) {
-    console.log(error);
+export async function deleteUser(queryID: string): Promise<boolean> {
+  try {
+    await UserModel.destroy({
+      where: {
+        id: queryID
+      }
+    });
+
+    return true;
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
