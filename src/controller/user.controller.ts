@@ -128,7 +128,7 @@ export async function updateUserHandler(
     const userID: string = req.params.id;
     const updateParams = req.body;
 
-    const updatedUser: UserModel | null | undefined = await updateUser(
+    const updatedUser: UserModel | null = await updateUser(
       userID,
       updateParams
     );
@@ -161,7 +161,7 @@ export async function removeUserHandler(
 ) {
   try {
     const userID: string = req.params.id;
-    const removedUser: UserModel | null | undefined = await removeUser(userID);
+    const removedUser: UserModel | null = await removeUser(userID);
 
     if (!removedUser) {
       return res.status(400).json({
