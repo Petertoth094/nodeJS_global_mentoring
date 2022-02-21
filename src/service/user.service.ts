@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { sequelize } from '../data-access/dbConnect';
+import { ConflictError, NotFoundError } from '../errors';
 import { GroupModel } from '../model/group.model';
 
 import { UserModel } from '../model/user.model';
@@ -17,7 +18,7 @@ export async function createUser(
 
     return newUser;
   } catch (error: any) {
-    throw new Error(error.errors[0].message);
+    throw new ConflictError(error.errors[0].message);
   }
 }
 
@@ -30,7 +31,7 @@ export async function getUsers(): Promise<UserModel[]> {
     });
     return users;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }
 
@@ -52,7 +53,7 @@ export async function getUserById(paramID: string): Promise<UserModel | null> {
 
     return foundUser;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound user with  request: ${paramID}`);
   }
 }
 
@@ -83,7 +84,7 @@ export async function getAutoSuggestUsers(
 
     return suggestedUsers;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }
 
@@ -108,7 +109,7 @@ export async function updateUser(
 
     return user;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
   }
 }
 
@@ -130,7 +131,7 @@ export async function removeUser(queryID: string): Promise<UserModel | null> {
 
     return user;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
   }
 }
 
@@ -147,6 +148,6 @@ export async function deleteUser(queryID: string): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
   }
 }

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import {
   CreateUserInput,
   DeleteUserInput,
@@ -14,36 +14,37 @@ import {
   removeUser,
   updateUser
 } from '../service/user.service';
-import logger from '../utils/logger';
 
 import { UserModel } from '../model/user.model';
+import Logger from '../utils/logger';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput['body']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const body = req.body;
 
     const createdUser: UserModel = await createUser(body);
 
-    return res.status(200).json({
+    return res.status(201).send({
       successful: true,
       result: {
         createdUser
       }
     });
-  } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      // error: 'User params wrong or user already exists!'
-      error: err?.message
-    });
+  } catch (err: unknown) {
+    Logger.error(err);
+    return next(err);
   }
 }
 
-export async function getUsersHandler(req: Request, res: Response) {
+export async function getUsersHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const users: UserModel[] = await getUsers();
 
@@ -53,25 +54,23 @@ export async function getUsersHandler(req: Request, res: Response) {
         users
       }
     });
-  } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+  } catch (err: unknown) {
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function getUserByIdHandler(
   req: Request<GetUserByIdInput['params']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const userID: string = req.params.id;
 
     const foundUser: UserModel | null = await getUserById(userID);
     if (!foundUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No user found with id: ${userID}`
       });
@@ -84,15 +83,16 @@ export async function getUserByIdHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
-export async function getAutoSuggestUsersHandler(req: Request, res: Response) {
+export async function getAutoSuggestUsersHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { loginSubStr, limit } = req.params;
 
@@ -108,11 +108,8 @@ export async function getAutoSuggestUsersHandler(req: Request, res: Response) {
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
@@ -122,7 +119,8 @@ export async function updateUserHandler(
     {},
     Partial<UpdateUserInput['body']>
   >,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const userID: string = req.params.id;
@@ -134,7 +132,7 @@ export async function updateUserHandler(
     );
 
     if (!updatedUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No user found with id: ${userID}`
       });
@@ -147,24 +145,22 @@ export async function updateUserHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function removeUserHandler(
   req: Request<DeleteUserInput['params']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const userID: string = req.params.id;
     const removedUser: UserModel | null = await removeUser(userID);
 
     if (!removedUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No user found with id: ${userID}`
       });
@@ -177,17 +173,15 @@ export async function removeUserHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function deleteUserHandler(
   req: Request<DeleteUserInput['params']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const userID: string = req.params.id;
@@ -195,7 +189,7 @@ export async function deleteUserHandler(
     const success: boolean = await deleteUser(userID);
 
     if (!success) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No user found with id: ${userID}`
       });
@@ -203,10 +197,7 @@ export async function deleteUserHandler(
 
     return res.status(200).send('User deleted');
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }

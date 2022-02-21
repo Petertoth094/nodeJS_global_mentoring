@@ -1,4 +1,5 @@
 import { sequelize } from '../data-access/dbConnect';
+import { ConflictError, NotFoundError } from '../errors';
 import { GroupModel } from '../model/group.model';
 import { UserModel } from '../model/user.model';
 import { CreateGroupInput, UpdateGroupInput } from '../schema/group.schema';
@@ -17,7 +18,7 @@ export async function createGroup(
 
     return newGroup;
   } catch (error: any) {
-    throw new Error(error.errors[0].message);
+    throw new ConflictError(error.errors[0].message);
   }
 }
 
@@ -33,7 +34,7 @@ export async function getGroups(): Promise<GroupModel[]> {
 
     return groups;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }
 
@@ -57,7 +58,7 @@ export async function getGroupById(
 
     return foundGroup;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound group with  request: ${paramID}`);
   }
 }
 
@@ -82,7 +83,7 @@ export async function updateGroup(
 
     return group;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(`NotFound group with  request: ${queryID}`);
   }
 }
 
@@ -114,6 +115,6 @@ export async function addUsersToGroupService(
     );
     return updatedGroup;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }

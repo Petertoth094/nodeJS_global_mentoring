@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
+// import Logger from '../utils/logger';
 
 export const sequelize = new Sequelize({
   dialect: config.get('dbDialect'),
@@ -13,5 +14,7 @@ export const sequelize = new Sequelize({
       require: true,
       rejectUnauthorized: false
     }
-  }
+  },
+  logging: false
+  // logging: (message) => Logger.info(message)
 });

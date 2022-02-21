@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import { GroupModel } from '../model/group.model';
 import {
@@ -17,33 +17,35 @@ import {
   updateGroup
 } from '../service/group.service';
 
-import logger from '../utils/logger';
+import Logger from '../utils/logger';
 
 export async function createGroupHandler(
   req: Request<{}, {}, CreateGroupInput['body']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const body = req.body;
 
     const createdGroup: GroupModel = await createGroup(body);
 
-    return res.status(200).json({
+    return res.status(201).json({
       successful: true,
       result: {
         createdGroup
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
-export async function getGroupsHandler(req: Request, res: Response) {
+export async function getGroupsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const groups: GroupModel[] = await getGroups();
 
@@ -54,24 +56,22 @@ export async function getGroupsHandler(req: Request, res: Response) {
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function getGroupByIdHandler(
   req: Request<GetGroupByIdInput['params']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const groupID: string = req.params.id;
 
     const foundGroup: GroupModel | null = await getGroupById(groupID);
     if (!foundGroup) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
@@ -84,17 +84,15 @@ export async function getGroupByIdHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function updateGroupHandler(
   req: Request<GetGroupByIdInput['params'], {}, UpdateGroupInput['body']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const groupID: string = req.params.id;
@@ -106,7 +104,7 @@ export async function updateGroupHandler(
     );
 
     if (!updatedGroup) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
@@ -119,17 +117,15 @@ export async function updateGroupHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function deleteGroupHandler(
   req: Request<DeleteGroupInput['params']>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const groupID: string = req.params.id;
@@ -137,7 +133,7 @@ export async function deleteGroupHandler(
     const success: boolean = await deleteGroup(groupID);
 
     if (!success) {
-      return res.status(400).json({
+      return res.status(404).json({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
@@ -145,17 +141,15 @@ export async function deleteGroupHandler(
 
     return res.status(200).send('Group deleted');
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
 
 export async function addUsersToGroupHandler(
   req: Request<GetGroupByIdInput['params'], {}, { userIDs: string[] }>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     const groupID: string = req.params.id;
@@ -167,7 +161,7 @@ export async function addUsersToGroupHandler(
     );
 
     if (!updatedGroup) {
-      return res.status(200).json({
+      return res.status(404).json({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
@@ -179,10 +173,7 @@ export async function addUsersToGroupHandler(
       }
     });
   } catch (err: any) {
-    logger.error(err);
-    return res.status(400).json({
-      successful: false,
-      error: err?.message
-    });
+    Logger.error(err);
+    return next(err);
   }
 }
