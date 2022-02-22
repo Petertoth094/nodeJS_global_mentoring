@@ -18,7 +18,10 @@ export async function createGroup(
 
     return newGroup;
   } catch (error: any) {
-    throw new ConflictError(error.errors[0].message);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      throw new ConflictError(error.errors[0].message);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -58,7 +61,10 @@ export async function getGroupById(
 
     return foundGroup;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound group with  request: ${paramID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found group with request: ${paramID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -83,7 +89,10 @@ export async function updateGroup(
 
     return group;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound group with  request: ${queryID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found group with request: ${queryID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -100,7 +109,10 @@ export async function deleteGroup(queryID: string): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    throw new Error(error);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found group with request: ${queryID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 

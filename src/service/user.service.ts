@@ -18,7 +18,10 @@ export async function createUser(
 
     return newUser;
   } catch (error: any) {
-    throw new ConflictError(error.errors[0].message);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      throw new ConflictError(error.errors[0].message);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -53,7 +56,10 @@ export async function getUserById(paramID: string): Promise<UserModel | null> {
 
     return foundUser;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound user with  request: ${paramID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${paramID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -109,7 +115,10 @@ export async function updateUser(
 
     return user;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -131,7 +140,10 @@ export async function removeUser(queryID: string): Promise<UserModel | null> {
 
     return user;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
+    throw new Error(error);
   }
 }
 
@@ -148,6 +160,9 @@ export async function deleteUser(queryID: string): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    throw new NotFoundError(`NotFound user with  request: ${queryID}`);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
+    throw new Error(error);
   }
 }
