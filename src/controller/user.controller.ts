@@ -34,7 +34,13 @@ export async function createUserHandler(
         createdUser
       }
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
+    err.message = `Method: ${
+      createUserHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -54,7 +60,13 @@ export async function getUsersHandler(
         users
       }
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
+    err.message = `Method: ${
+      getUsersHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -83,6 +95,12 @@ export async function getUserByIdHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      getUserByIdHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -108,6 +126,12 @@ export async function getAutoSuggestUsersHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      getAutoSuggestUsersHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -145,6 +169,12 @@ export async function updateUserHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      updateUserHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -173,6 +203,12 @@ export async function removeUserHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      removeUserHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -197,6 +233,12 @@ export async function deleteUserHandler(
 
     return res.status(200).send('User deleted');
   } catch (err: any) {
+    err.message = `Method: ${
+      deleteUserHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }

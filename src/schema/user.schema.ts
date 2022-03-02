@@ -43,11 +43,15 @@ export const deleteUserSchema = object({
 
 export const updateUserSchema = createUserSchema.deepPartial();
 
+export const loginUserSchema = object({
+  body: payload.body.omit({ age: true })
+});
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>;
 export type UpdateUserInput = TypeOf<typeof updateUserSchema>;
 export type GetUserByIdInput = TypeOf<typeof getUserByIdSchema>;
 export type DeleteUserInput = TypeOf<typeof deleteUserSchema>;
-
+export type LoginUserInput = TypeOf<typeof loginUserSchema>;
 /**
  * regularExpression = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
  */

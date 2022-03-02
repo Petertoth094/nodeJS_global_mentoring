@@ -20,7 +20,7 @@ const format = winston.format.combine(
   winston.format.printf(({ level, message, timestamp, stack }) => {
     timestamp = chalk.italic.gray(timestamp);
     if (stack) {
-      return `[${level}] [${timestamp}] ${message} - ${stack}`;
+      // return `[${level}] [${timestamp}] ${message} - ${stack}`;
     }
     return `[${level}] ${timestamp} ${message}`;
   })

@@ -63,6 +63,32 @@ export async function getUserById(paramID: string): Promise<UserModel | null> {
   }
 }
 
+export async function getUserByLogin(
+  username: string
+): Promise<UserModel | null> {
+  try {
+    const foundUser: UserModel | null = await sequelize.transaction(
+      async (t) => {
+        const user = await UserModel.findOne({
+          where: {
+            login: username
+          },
+          transaction: t,
+          logging: false
+        });
+        return user;
+      }
+    );
+
+    return foundUser;
+  } catch (error: any) {
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user: ${username}`);
+    }
+    throw new Error('Something went wrong');
+  }
+}
+
 export async function getAutoSuggestUsers(
   loginSubstring: string,
   limitParam: number

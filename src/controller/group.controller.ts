@@ -36,6 +36,12 @@ export async function createGroupHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      createGroupHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -56,6 +62,12 @@ export async function getGroupsHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      getGroupsHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -84,6 +96,12 @@ export async function getGroupByIdHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      getGroupByIdHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -117,6 +135,12 @@ export async function updateGroupHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      updateGroupHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -141,6 +165,12 @@ export async function deleteGroupHandler(
 
     return res.status(200).send('Group deleted');
   } catch (err: any) {
+    err.message = `Method: ${
+      deleteGroupHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }
@@ -173,6 +203,12 @@ export async function addUsersToGroupHandler(
       }
     });
   } catch (err: any) {
+    err.message = `Method: ${
+      addUsersToGroupHandler.name
+    } - Arguments: ${JSON.stringify({
+      ...req.body,
+      ...req.params
+    })} - Message: ${err}`;
     Logger.error(err);
     return next(err);
   }

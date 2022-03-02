@@ -1,12 +1,12 @@
 import BaseError from './BaseError';
 import { StatusCodes } from 'http-status-codes';
 
-export default class ConflictError extends BaseError {
+export default class UnauthorizedError extends BaseError {
   constructor(
     message: string,
     description = '',
-    name = 'Conclict Request Error',
-    statusCode = StatusCodes.CONFLICT,
+    name = 'Unauthorized Error',
+    statusCode = StatusCodes.UNAUTHORIZED,
     isOperational = true
   ) {
     super(message, description, name, statusCode, isOperational);

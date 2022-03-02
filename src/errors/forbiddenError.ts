@@ -1,12 +1,12 @@
 import BaseError from './BaseError';
 import { StatusCodes } from 'http-status-codes';
 
-export default class ConflictError extends BaseError {
+export default class ForbiddenError extends BaseError {
   constructor(
     message: string,
     description = '',
-    name = 'Conclict Request Error',
-    statusCode = StatusCodes.CONFLICT,
+    name = 'Forbidden Request Error',
+    statusCode = StatusCodes.FORBIDDEN,
     isOperational = true
   ) {
     super(message, description, name, statusCode, isOperational);

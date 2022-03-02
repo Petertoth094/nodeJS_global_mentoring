@@ -12,7 +12,7 @@ const errorHandler = (
   if (err instanceof BaseError) {
     return res
       .status(err.statusCode)
-      .send({ succesfull: false, message: err.name });
+      .send({ succesfull: false, message: err.description });
   }
   res.status(500).send({ succesfull: false, message: 'Something went wrong' });
 };

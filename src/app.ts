@@ -2,6 +2,8 @@
 /* eslint-disable no-unused-vars */
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import config from 'config';
 
@@ -22,15 +24,17 @@ import {
 dotenv.config();
 
 const app = express();
+const port = config.get<number>('port');
 
+app.use(cookieParser());
 app.use(express.json());
+
+app.use(cors());
 
 app.use(morganChalk);
 
 app.use(router);
 app.use(errorHandler);
-
-const port = config.get<number>('port');
 
 const startApp = async () => {
   try {

@@ -3,11 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 
 export default class NotFoundError extends BaseError {
   constructor(
-    name: string,
+    message: string,
+    description = '',
+    name = 'Not Found Error',
     statusCode = StatusCodes.NOT_FOUND,
-    description = 'Not found.',
     isOperational = true
   ) {
-    super(name, statusCode, isOperational, description);
+    super(message, description, name, statusCode, isOperational);
+    this.description = description || message;
   }
 }
