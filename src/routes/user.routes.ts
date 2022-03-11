@@ -1,5 +1,7 @@
 import express from 'express';
 
+import validateResource from '../middleware/validateResource';
+
 import {
   createUserHandler,
   deleteUserHandler,
@@ -10,7 +12,6 @@ import {
   updateUserHandler
 } from '../controller/user.controller';
 
-import validateResource from '../middleware/validateResource';
 import {
   createUserSchema,
   deleteUserSchema,
