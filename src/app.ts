@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
-import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -21,9 +20,7 @@ import {
   isOperationalError
 } from './middleware/errorHandler.middleware';
 
-dotenv.config();
-
-const app = express();
+export const app = express();
 const port = config.get<number>('port');
 
 app.use(cookieParser());

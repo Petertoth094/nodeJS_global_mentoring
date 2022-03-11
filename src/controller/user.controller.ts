@@ -54,7 +54,7 @@ export async function getUsersHandler(
   try {
     const users: UserModel[] = await getUsers();
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         users
@@ -82,13 +82,13 @@ export async function getUserByIdHandler(
 
     const foundUser: UserModel | null = await getUserById(userID);
     if (!foundUser) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No user found with id: ${userID}`
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         foundUser
@@ -119,7 +119,7 @@ export async function getAutoSuggestUsersHandler(
       parseInt(limit, 10)
     );
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         users
@@ -156,13 +156,13 @@ export async function updateUserHandler(
     );
 
     if (!updatedUser) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No user found with id: ${userID}`
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         updatedUser
@@ -190,13 +190,13 @@ export async function removeUserHandler(
     const removedUser: UserModel | null = await removeUser(userID);
 
     if (!removedUser) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No user found with id: ${userID}`
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         removedUser
@@ -225,7 +225,7 @@ export async function deleteUserHandler(
     const success: boolean = await deleteUser(userID);
 
     if (!success) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No user found with id: ${userID}`
       });

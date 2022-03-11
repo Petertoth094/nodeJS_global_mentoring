@@ -29,7 +29,7 @@ export async function createGroupHandler(
 
     const createdGroup: GroupModel = await createGroup(body);
 
-    return res.status(201).json({
+    return res.status(201).send({
       successful: true,
       result: {
         createdGroup
@@ -55,7 +55,7 @@ export async function getGroupsHandler(
   try {
     const groups: GroupModel[] = await getGroups();
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         groups
@@ -83,13 +83,13 @@ export async function getGroupByIdHandler(
 
     const foundGroup: GroupModel | null = await getGroupById(groupID);
     if (!foundGroup) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         foundGroup
@@ -122,13 +122,13 @@ export async function updateGroupHandler(
     );
 
     if (!updatedGroup) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         updatedGroup
@@ -157,7 +157,7 @@ export async function deleteGroupHandler(
     const success: boolean = await deleteGroup(groupID);
 
     if (!success) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
@@ -191,12 +191,12 @@ export async function addUsersToGroupHandler(
     );
 
     if (!updatedGroup) {
-      return res.status(404).json({
+      return res.status(404).send({
         successful: false,
         error: `No group found with id: ${groupID}`
       });
     }
-    return res.status(200).json({
+    return res.status(200).send({
       successful: true,
       result: {
         updatedGroup

@@ -3,12 +3,12 @@ import config from 'config';
 // import Logger from '../utils/logger';
 
 export const sequelize = new Sequelize({
-  dialect: config.get('dbDialect'),
-  host: config.get('dbHost'),
-  port: config.get('dbPort'),
-  username: config.get('dbUsername'),
-  password: config.get('dbPassword'),
-  database: config.get('dbDatabase'),
+  dialect: config.get('databaseParams.dbDialect'),
+  host: config.get('databaseParams.dbHost'),
+  port: config.get('databaseParams.dbPort'),
+  username: config.get('databaseParams.dbUsername'),
+  password: config.get('databaseParams.dbPassword'),
+  database: config.get('databaseParams.dbDatabase'),
   dialectOptions: {
     ssl: {
       require: true,
