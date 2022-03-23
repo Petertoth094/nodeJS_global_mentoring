@@ -1,4 +1,7 @@
 import { Op } from 'sequelize';
+import { sequelize } from '../data-access/dbConnect';
+import { ConflictError, NotFoundError } from '../errors';
+import { GroupModel } from '../model/group.model';
 
 import { UserModel } from '../model/user.model';
 import { CreateUserInput, UpdateUserInput } from '../schema/user.schema';
@@ -7,35 +10,82 @@ export async function createUser(
   input: CreateUserInput['body']
 ): Promise<UserModel> {
   try {
-    const newUser: UserModel = await UserModel.create(input);
+    const newUser: UserModel = await sequelize.transaction(async (t) => {
+      const user: UserModel = await UserModel.create(input, { transaction: t });
+
+      return user;
+    });
 
     return newUser;
   } catch (error: any) {
-    throw new Error(error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      throw new ConflictError(error.errors[0].message);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
 export async function getUsers(): Promise<UserModel[]> {
   try {
-    const dbUsers: UserModel[] = await UserModel.findAll();
+    const users: UserModel[] = await sequelize.transaction(async (t) => {
+      const dbUsers: UserModel[] = await UserModel.findAll({ transaction: t });
 
-    return dbUsers;
+      return dbUsers;
+    });
+    return users;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }
 
 export async function getUserById(paramID: string): Promise<UserModel | null> {
   try {
-    const foundUser: UserModel | null = await UserModel.findOne({
-      where: {
-        id: paramID
+    const foundUser: UserModel | null = await sequelize.transaction(
+      async (t) => {
+        const user = await UserModel.findOne({
+          where: {
+            id: paramID
+          },
+          transaction: t,
+          include: GroupModel,
+          logging: false
+        });
+        return user;
       }
-    });
+    );
 
     return foundUser;
   } catch (error: any) {
-    throw new Error(error);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${paramID}`);
+    }
+    throw new Error('Something went wrong');
+  }
+}
+
+export async function getUserByLogin(
+  username: string
+): Promise<UserModel | null> {
+  try {
+    const foundUser: UserModel | null = await sequelize.transaction(
+      async (t) => {
+        const user = await UserModel.findOne({
+          where: {
+            login: username
+          },
+          transaction: t,
+          logging: false
+        });
+        return user;
+      }
+    );
+
+    return foundUser;
+  } catch (error: any) {
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user: ${username}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
@@ -44,89 +94,101 @@ export async function getAutoSuggestUsers(
   limitParam: number
 ): Promise<UserModel[]> {
   try {
-    const suggestedUsers: UserModel[] = await UserModel.findAll({
-      limit: limitParam,
-      order: [['login', 'ASC']],
-      where: {
-        login: {
-          [Op.or]: {
-            [Op.startsWith]: loginSubstring,
-            [Op.endsWith]: loginSubstring,
-            [Op.iLike]: `%${loginSubstring}%`
-          }
-        }
+    const suggestedUsers: UserModel[] = await sequelize.transaction(
+      async (t) => {
+        const users: UserModel[] = await UserModel.findAll({
+          limit: limitParam,
+          order: [['login', 'ASC']],
+          where: {
+            login: {
+              [Op.or]: {
+                // [Op.startsWith]: loginSubstring,
+                // [Op.endsWith]: loginSubstring,
+                [Op.iLike]: `%${loginSubstring}%`
+              }
+            }
+          },
+          transaction: t
+        });
+        return users;
       }
-    });
+    );
 
     return suggestedUsers;
   } catch (error: any) {
-    throw new Error(error);
+    throw new NotFoundError(error);
   }
 }
 
 export async function updateUser(
   queryID: string,
   update: UpdateUserInput['body']
-): Promise<UserModel | null | undefined> {
+): Promise<UserModel | null> {
   try {
-    const [foundCounter] = await UserModel.update(
-      { ...update },
-      {
-        where: {
-          id: queryID
+    const user: UserModel | null = await sequelize.transaction(async (t) => {
+      const [count, users] = await UserModel.update(
+        { ...update },
+        {
+          where: {
+            id: queryID
+          },
+          returning: true,
+          transaction: t
         }
-      }
-    );
-    if (foundCounter > 0) {
-      const returnUser = await UserModel.findOne({
-        where: {
-          id: queryID
-        }
-      });
-      return returnUser;
-    }
-    return undefined;
+      );
+      return count > 0 ? users[0] : null;
+    });
+
+    return user;
   } catch (error: any) {
-    throw new Error(error);
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
+    throw new Error('Something went wrong');
   }
 }
 
-export async function removeUser(
-  queryID: string
-): Promise<UserModel | null | undefined> {
+export async function removeUser(queryID: string): Promise<UserModel | null> {
   try {
-    const [foundCounter] = await UserModel.update(
-      { isDeleted: true },
-      {
-        where: {
-          id: queryID
+    const user: UserModel | null = await sequelize.transaction(async (t) => {
+      const [count, users] = await UserModel.update(
+        { isDeleted: true },
+        {
+          where: {
+            id: queryID
+          },
+          returning: true,
+          transaction: t
         }
-      }
-    );
-    if (foundCounter > 0) {
-      const removedUser = await UserModel.findOne({
-        where: {
-          id: queryID
-        }
-      });
-      return removedUser;
-    }
-    return undefined;
+      );
+      return count > 0 ? users[0] : null;
+    });
+
+    return user;
   } catch (error: any) {
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
     throw new Error(error);
   }
 }
 
 export async function deleteUser(queryID: string): Promise<boolean> {
   try {
-    await UserModel.destroy({
-      where: {
-        id: queryID
-      }
+    await sequelize.transaction(async (t) => {
+      await UserModel.destroy({
+        where: {
+          id: queryID
+        },
+        transaction: t
+      });
     });
 
     return true;
   } catch (error: any) {
+    if (error.name === 'SequelizeDatabaseError') {
+      throw new NotFoundError(`Not Found user with request: ${queryID}`);
+    }
     throw new Error(error);
   }
 }

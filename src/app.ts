@@ -1,33 +1,64 @@
-import dotenv from 'dotenv';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
 import config from 'config';
 
-import { sequelize } from './model/user.model';
-
-import log from './utils/logger';
 import router from './routes';
 
-dotenv.config();
+import { sequelize } from './data-access/dbConnect';
+import { UserModel } from './model/user.model';
+import { GroupModel } from './model/group.model';
 
-const app = express();
+import Logger from './utils/logger';
+import { morganChalk } from './middleware/logResource';
 
-app.use(express.json());
-app.use(router);
+import {
+  errorHandler,
+  isOperationalError
+} from './middleware/errorHandler.middleware';
 
+export const app = express();
 const port = config.get<number>('port');
+
+app.use(cookieParser());
+app.use(express.json());
+
+app.use(cors());
+
+app.use(morganChalk);
+
+app.use(router);
+app.use(errorHandler);
 
 const startApp = async () => {
   try {
     await sequelize.authenticate();
-    log.info('Connection to DB has been established successfully.');
+    Logger.info('Connection to DB has been established successfully.');
     app.listen(port, async () => {
-      log.info(`App started at http://localhost:${port}`);
       // await sequelize.sync(); // Creating database if not exists
+      // await UserModel.sync();
+      // await GroupModel.sync();
+      Logger.info(`App started at http://localhost:${port}`);
     });
   } catch (error) {
-    log.error(error);
-    process.exit(1);
+    Logger.error(error);
+    process.exitCode = 1;
   }
 };
 
 startApp();
+
+process
+  .on('unhandledRejection', (reason: Error, p: Promise<any>) => {
+    throw reason;
+  })
+  .on('uncaughtException', (err: Error) => {
+    Logger.error(err);
+    if (!isOperationalError(err)) {
+      Logger.error('Restarting session');
+      process.exitCode = 1;
+    }
+  });

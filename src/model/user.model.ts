@@ -1,5 +1,7 @@
-import { DataTypes, Sequelize, Model } from 'sequelize';
-import config from 'config';
+import { DataTypes, HasManyAddAssociationsMixin, Model } from 'sequelize';
+import { GroupModel } from './group.model';
+
+import { sequelize } from '../data-access/dbConnect';
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
@@ -12,26 +14,9 @@ export default interface User {
   // eslint-disable-next-line semi
 }
 
-export type UserView = Optional<User, 'password'>;
-
 type CreateUserModel = Optional<User, 'id' | 'isDeleted'>;
 
-const sequelize = new Sequelize({
-  dialect: config.get('dbDialect'),
-  host: config.get('dbHost'),
-  port: config.get('dbPort'),
-  username: config.get('dbUsername'),
-  password: config.get('dbPassword'),
-  database: config.get('dbDatabase'),
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  }
-});
-
-class UserModel
+export class UserModel
   extends Model<User, CreateUserModel>
   // eslint-disable-next-line prettier/prettier
   implements CreateUserModel {
@@ -40,6 +25,8 @@ class UserModel
   declare password: string;
   declare age: number;
   declare isDeleted: boolean;
+
+  declare addGroupModels: HasManyAddAssociationsMixin<GroupModel, string>;
 
   // declare readonly createdAt: Date;
   // declare readonly updatedAt: Date;
@@ -89,4 +76,9 @@ UserModel.init(
   }
 );
 
-export { sequelize, UserModel };
+setTimeout(() => {
+  UserModel.belongsToMany(GroupModel, {
+    through: 'usergroup',
+    timestamps: false
+  });
+}, 0);
